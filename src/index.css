@@ -2,81 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Meet&Mani Design System - Light Pink Professional Theme with Share Tech Typography */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 340 20% 15%;
+    /* Light pink professional palette */
+    --background: 340 30% 98%;
+    --foreground: 340 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 340 20% 15%;
+    --card-foreground: 340 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 340 20% 15%;
+    --popover-foreground: 340 25% 15%;
 
-    --primary: 350 70% 58%;
+    /* Soft pink primary */
+    --primary: 340 65% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 100% 96%;
-    --secondary-foreground: 340 20% 15%;
+    /* Light blush secondary */
+    --secondary: 340 40% 95%;
+    --secondary-foreground: 340 25% 25%;
 
-    --muted: 20 40% 96%;
-    --muted-foreground: 340 10% 45%;
+    /* Muted rose tones */
+    --muted: 340 20% 94%;
+    --muted-foreground: 340 15% 45%;
 
-    --accent: 15 85% 65%;
+    /* Deeper rose accent */
+    --accent: 340 50% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 30% 90%;
-    --input: 20 30% 90%;
-    --ring: 350 70% 58%;
+    /* Soft pink borders */
+    --border: 340 25% 88%;
+    --input: 340 25% 90%;
+    --ring: 340 65% 65%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Custom design tokens */
-    --gradient-hero: linear-gradient(135deg, hsl(350, 70%, 58%), hsl(15, 85%, 65%));
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(20, 100%, 98%));
-    --shadow-elegant: 0 10px 30px -10px hsl(350 70% 58% / 0.2);
+    --gradient-hero: linear-gradient(135deg, hsl(340, 65%, 65%), hsl(340, 50%, 55%));
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(340, 30%, 98%));
+    --gradient-subtle: linear-gradient(180deg, hsl(340, 30%, 98%), hsl(340, 25%, 96%));
+    --shadow-elegant: 0 4px 20px -4px hsl(340 40% 50% / 0.15);
+    --shadow-card: 0 2px 12px -2px hsl(340 30% 50% / 0.1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 340 30% 8%;
-    --foreground: 20 40% 95%;
+    --background: 340 25% 8%;
+    --foreground: 340 20% 95%;
 
-    --card: 340 25% 12%;
-    --card-foreground: 20 40% 95%;
+    --card: 340 20% 12%;
+    --card-foreground: 340 20% 95%;
 
-    --popover: 340 25% 12%;
-    --popover-foreground: 20 40% 95%;
+    --popover: 340 20% 12%;
+    --popover-foreground: 340 20% 95%;
 
-    --primary: 350 70% 58%;
+    --primary: 340 60% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 340 20% 18%;
-    --secondary-foreground: 20 40% 95%;
+    --secondary: 340 15% 18%;
+    --secondary-foreground: 340 20% 90%;
 
-    --muted: 340 20% 18%;
-    --muted-foreground: 20 20% 65%;
+    --muted: 340 15% 18%;
+    --muted-foreground: 340 15% 60%;
 
-    --accent: 15 85% 65%;
+    --accent: 340 50% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 340 20% 18%;
-    --input: 340 20% 18%;
-    --ring: 350 70% 58%;
+    --border: 340 15% 20%;
+    --input: 340 15% 20%;
+    --ring: 340 60% 60%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(350, 70%, 48%), hsl(15, 85%, 55%));
-    --gradient-card: linear-gradient(180deg, hsl(340, 25%, 12%), hsl(340, 20%, 15%));
-    --shadow-elegant: 0 10px 30px -10px hsl(350 70% 58% / 0.3);
+    --gradient-hero: linear-gradient(135deg, hsl(340, 60%, 50%), hsl(340, 45%, 45%));
+    --gradient-card: linear-gradient(180deg, hsl(340, 20%, 12%), hsl(340, 18%, 15%));
+    --gradient-subtle: linear-gradient(180deg, hsl(340, 20%, 10%), hsl(340, 18%, 12%));
+    --shadow-elegant: 0 4px 20px -4px hsl(340 50% 40% / 0.3);
+    --shadow-card: 0 2px 12px -2px hsl(340 30% 30% / 0.2);
   }
 }
 
@@ -86,6 +94,10 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
   }
 }
