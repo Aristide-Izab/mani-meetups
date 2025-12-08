@@ -24,10 +24,12 @@ const Auth = () => {
   // Login form
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginConfirmPassword, setLoginConfirmPassword] = useState("");
 
   // Signup form
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [userType, setUserType] = useState<"customer" | "business" | null>(null);
@@ -54,6 +56,12 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (loginPassword !== loginConfirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -76,6 +84,17 @@ const Auth = () => {
       setSignupStep("type");
       return;
     }
+    
+    if (signupPassword !== signupConfirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
+    if (signupPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
@@ -162,6 +181,16 @@ const Auth = () => {
                         type="password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="login-confirm-password">Confirm Password</Label>
+                      <Input
+                        id="login-confirm-password"
+                        type="password"
+                        value={loginConfirmPassword}
+                        onChange={(e) => setLoginConfirmPassword(e.target.value)}
                         required
                       />
                     </div>
@@ -330,8 +359,19 @@ const Auth = () => {
                             <Input
                               id="signup-password"
                               type="password"
+                              placeholder="Min. 6 characters"
                               value={signupPassword}
                               onChange={(e) => setSignupPassword(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                            <Input
+                              id="signup-confirm-password"
+                              type="password"
+                              value={signupConfirmPassword}
+                              onChange={(e) => setSignupConfirmPassword(e.target.value)}
                               required
                             />
                           </div>
