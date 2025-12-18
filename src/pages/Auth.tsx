@@ -141,9 +141,9 @@ const Auth = () => {
       <div className="container mx-auto px-4 pt-32 pb-16">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-hero bg-clip-text text-transparent">
-              Welcome to Meet&Mani
-            </h1>
+            <div className="h-16 w-16 mx-auto rounded-full bg-gradient-hero flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 text-primary-foreground" />
+            </div>
             <p className="text-muted-foreground">
               Connect with nail techs at your favorite malls
             </p>

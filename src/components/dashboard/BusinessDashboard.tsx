@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MessageSquare, Store } from "lucide-react";
+import { Calendar, MessageSquare, Store, User } from "lucide-react";
 import { toast } from "sonner";
+import MessageDialog from "@/components/messaging/MessageDialog";
 
 interface Booking {
   id: string;
@@ -19,9 +20,21 @@ interface Booking {
   };
 }
 
+interface CustomerContact {
+  id: string;
+  full_name: string;
+  email: string;
+  unread_count: number;
+}
+
 const BusinessDashboard = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [business, setBusiness] = useState<any>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [customerContacts, setCustomerContacts] = useState<CustomerContact[]>([]);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; name: string } | null>(null);
+  const [showMessages, setShowMessages] = useState(false);
 
   useEffect(() => {
     fetchBusinessAndBookings();
@@ -33,6 +46,7 @@ const BusinessDashboard = () => {
     } = await supabase.auth.getUser();
 
     if (!user) return;
+    setCurrentUserId(user.id);
 
     // Fetch business
     const { data: businessData } = await supabase
@@ -61,6 +75,51 @@ const BusinessDashboard = () => {
         setBookings(bookingsData as unknown as Booking[]);
       }
     }
+
+    // Fetch customer contacts (people who messaged this business)
+    fetchCustomerContacts(user.id);
+  };
+
+  const fetchCustomerContacts = async (userId: string) => {
+    // Get all messages where the business owner is involved
+    const { data: messages } = await supabase
+      .from("messages")
+      .select("sender_id, receiver_id, read")
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+
+    if (!messages || messages.length === 0) {
+      setCustomerContacts([]);
+      return;
+    }
+
+    // Get unique customer IDs who have contacted the business
+    const customerIds = new Set<string>();
+    messages.forEach((msg) => {
+      const otherId = msg.sender_id === userId ? msg.receiver_id : msg.sender_id;
+      customerIds.add(otherId);
+    });
+
+    // Get customer profiles
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", Array.from(customerIds))
+      .eq("user_type", "customer");
+
+    if (profiles) {
+      const contacts = profiles.map((profile) => {
+        const unreadCount = messages.filter(
+          (m) => m.sender_id === profile.id && m.receiver_id === userId && !m.read
+        ).length;
+        return {
+          id: profile.id,
+          full_name: profile.full_name,
+          email: profile.email,
+          unread_count: unreadCount,
+        };
+      });
+      setCustomerContacts(contacts);
+    }
   };
 
   const updateBookingStatus = async (bookingId: string, status: string) => {
@@ -76,6 +135,13 @@ const BusinessDashboard = () => {
       fetchBusinessAndBookings();
     }
   };
+
+  const handleOpenCustomerChat = (customer: CustomerContact) => {
+    setSelectedCustomer({ id: customer.id, name: customer.full_name });
+    setMessageDialogOpen(true);
+  };
+
+  const totalUnread = customerContacts.reduce((sum, c) => sum + c.unread_count, 0);
 
   return (
     <div className="space-y-8">
@@ -115,18 +181,75 @@ const BusinessDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-elegant">
+        <Card 
+          className="shadow-elegant cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => setShowMessages(!showMessages)}
+        >
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center">
-              <div className="h-12 w-12 rounded-full bg-gradient-hero flex items-center justify-center mb-4">
+              <div className="h-12 w-12 rounded-full bg-gradient-hero flex items-center justify-center mb-4 relative">
                 <MessageSquare className="h-6 w-6 text-primary-foreground" />
+                {totalUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                    {totalUnread}
+                  </span>
+                )}
               </div>
               <h3 className="text-lg font-semibold mb-2">Messages</h3>
-              <p className="text-sm text-muted-foreground">Chat with customers</p>
+              <p className="text-sm text-muted-foreground">
+                {customerContacts.length} customer{customerContacts.length !== 1 ? "s" : ""}
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {showMessages && (
+        <Card className="shadow-elegant">
+          <CardHeader>
+            <CardTitle>Customer Messages</CardTitle>
+            <CardDescription>Customers who have contacted you</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {customerContacts.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                No customer messages yet
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {customerContacts.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-secondary/50 cursor-pointer transition-colors"
+                    onClick={() => handleOpenCustomerChat(customer)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{customer.full_name}</h4>
+                        <p className="text-sm text-muted-foreground">{customer.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {customer.unread_count > 0 && (
+                        <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                          {customer.unread_count}
+                        </span>
+                      )}
+                      <Button variant="outline" size="sm">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Chat
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="shadow-elegant">
         <CardHeader>
@@ -191,6 +314,21 @@ const BusinessDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {selectedCustomer && (
+        <MessageDialog
+          open={messageDialogOpen}
+          onOpenChange={(open) => {
+            setMessageDialogOpen(open);
+            if (!open) {
+              fetchCustomerContacts(currentUserId);
+            }
+          }}
+          recipientId={selectedCustomer.id}
+          recipientName={selectedCustomer.name}
+          currentUserId={currentUserId}
+        />
+      )}
     </div>
   );
 };
