@@ -24,7 +24,6 @@ const Auth = () => {
   // Login form
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [loginConfirmPassword, setLoginConfirmPassword] = useState("");
 
   // Signup form
   const [signupEmail, setSignupEmail] = useState("");
@@ -56,12 +55,6 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (loginPassword !== loginConfirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-    
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -181,16 +174,6 @@ const Auth = () => {
                         type="password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="login-confirm-password">Confirm Password</Label>
-                      <Input
-                        id="login-confirm-password"
-                        type="password"
-                        value={loginConfirmPassword}
-                        onChange={(e) => setLoginConfirmPassword(e.target.value)}
                         required
                       />
                     </div>
