@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Session } from "@supabase/supabase-js";
 import Navbar from "@/components/Navbar";
-import { Sparkles, Briefcase, ArrowRight, ArrowLeft, User, Building2 } from "lucide-react";
+import { Sparkles, Briefcase, ArrowRight, ArrowLeft, User, Building2, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type SignupStep = "type" | "details";
@@ -33,6 +33,8 @@ const Auth = () => {
   const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
   const [userType, setUserType] = useState<"customer" | "business" | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -354,24 +356,44 @@ const Auth = () => {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="signup-password">Password</Label>
-                            <Input
-                              id="signup-password"
-                              type="password"
-                              placeholder="Min. 6 characters"
-                              value={signupPassword}
-                              onChange={(e) => setSignupPassword(e.target.value)}
-                              required
-                            />
+                            <div className="relative">
+                              <Input
+                                id="signup-password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Min. 6 characters"
+                                value={signupPassword}
+                                onChange={(e) => setSignupPassword(e.target.value)}
+                                required
+                                className="pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="signup-confirm-password">Confirm Password</Label>
-                            <Input
-                              id="signup-confirm-password"
-                              type="password"
-                              value={signupConfirmPassword}
-                              onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                              required
-                            />
+                            <div className="relative">
+                              <Input
+                                id="signup-confirm-password"
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={signupConfirmPassword}
+                                onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                                required
+                                className="pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
                           </div>
                           <Button type="submit" className="w-full bg-gradient-hero" disabled={loading}>
                             {loading ? "Creating account..." : "Create Account"}
