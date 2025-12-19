@@ -33,6 +33,7 @@ const Auth = () => {
   const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
   const [userType, setUserType] = useState<"customer" | "business" | null>(null);
+  const [businessUsername, setBusinessUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -102,6 +103,7 @@ const Auth = () => {
           surname: surname,
           user_type: userType,
           phone: phone,
+          business_username: userType === "business" ? businessUsername : undefined,
         },
         emailRedirectTo: `${window.location.origin}/`,
       },
@@ -333,6 +335,22 @@ const Auth = () => {
                               />
                             </div>
                           </div>
+                          {userType === "business" && (
+                            <div className="space-y-2">
+                              <Label htmlFor="business-username">Business Username</Label>
+                              <Input
+                                id="business-username"
+                                type="text"
+                                placeholder="e.g. nailsby_jane"
+                                value={businessUsername}
+                                onChange={(e) => setBusinessUsername(e.target.value.toLowerCase().replace(/\s/g, '_'))}
+                                required
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Customers will search for your business using this username
+                              </p>
+                            </div>
+                          )}
                           <div className="space-y-2">
                             <Label htmlFor="signup-email">Email</Label>
                             <Input
