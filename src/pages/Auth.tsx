@@ -29,7 +29,8 @@ const Auth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
   const [userType, setUserType] = useState<"customer" | "business" | null>(null);
 
@@ -95,7 +96,8 @@ const Auth = () => {
       password: signupPassword,
       options: {
         data: {
-          full_name: fullName,
+          first_name: firstName,
+          surname: surname,
           user_type: userType,
           phone: phone,
         },
@@ -305,16 +307,29 @@ const Auth = () => {
                         </div>
 
                         <form onSubmit={handleSignup} className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="full-name">Full Name</Label>
-                            <Input
-                              id="full-name"
-                              type="text"
-                              placeholder="John Doe"
-                              value={fullName}
-                              onChange={(e) => setFullName(e.target.value)}
-                              required
-                            />
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="first-name">Name</Label>
+                              <Input
+                                id="first-name"
+                                type="text"
+                                placeholder="John"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="surname">Surname</Label>
+                              <Input
+                                id="surname"
+                                type="text"
+                                placeholder="Doe"
+                                value={surname}
+                                onChange={(e) => setSurname(e.target.value)}
+                                required
+                              />
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="signup-email">Email</Label>
