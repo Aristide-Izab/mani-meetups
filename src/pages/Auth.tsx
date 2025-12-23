@@ -70,8 +70,11 @@ const Auth = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      const userName = data.user?.user_metadata?.first_name || data.user?.email?.split('@')[0] || 'User';
-      toast.success(`Welcome back, ${userName}!`);
+      const userType = data.user?.user_metadata?.user_type;
+      const displayName = userType === "business" 
+        ? data.user?.user_metadata?.business_username 
+        : data.user?.user_metadata?.first_name || data.user?.email?.split('@')[0];
+      toast.success(`Welcome back, ${displayName}!`);
     }
     setLoading(false);
   };
