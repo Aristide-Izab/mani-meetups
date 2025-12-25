@@ -50,24 +50,35 @@ const Profile = () => {
       return;
     }
 
+    const user = session.user;
+    const userMeta = user.user_metadata;
+
     // Fetch profile
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .maybeSingle();
 
     if (profileData) {
-      setProfile(profileData);
-      setFullName(profileData.full_name || "");
-      setPhone(profileData.phone || "");
+      // Use profile data, but fallback to user metadata if empty
+      const combinedFullName = profileData.full_name || 
+        `${userMeta?.first_name || ''} ${userMeta?.surname || ''}`.trim() ||
+        user.email?.split('@')[0] || '';
+      
+      setProfile({
+        ...profileData,
+        full_name: combinedFullName
+      });
+      setFullName(combinedFullName);
+      setPhone(profileData.phone || userMeta?.phone || "");
 
       // If business user, fetch business details
       if (profileData.user_type === "business") {
         const { data: businessData } = await supabase
           .from("businesses")
           .select("*")
-          .eq("owner_id", session.user.id)
+          .eq("owner_id", user.id)
           .maybeSingle();
 
         if (businessData) {
@@ -76,6 +87,18 @@ const Profile = () => {
           setBusinessDescription(businessData.description || "");
         }
       }
+    } else {
+      // No profile found, create one from user metadata
+      const combinedFullName = `${userMeta?.first_name || ''} ${userMeta?.surname || ''}`.trim();
+      setProfile({
+        id: user.id,
+        full_name: combinedFullName,
+        email: user.email || '',
+        phone: userMeta?.phone || null,
+        user_type: userMeta?.user_type || 'customer'
+      });
+      setFullName(combinedFullName);
+      setPhone(userMeta?.phone || "");
     }
 
     setLoading(false);
