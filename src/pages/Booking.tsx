@@ -50,7 +50,7 @@ const Booking = () => {
 
     const { data: businessesData } = await supabase
       .from("businesses")
-      .select("*")
+      .select("id, business_name, username, description, owner_id")
       .order("business_name");
 
     if (businessesData) {
@@ -82,6 +82,9 @@ const Booking = () => {
       .eq("id", user.id)
       .single();
 
+    // Get the selected business details
+    const selectedBusinessData = businesses.find(b => b.id === selectedBusiness);
+
     const { error } = await supabase.from("bookings").insert({
       customer_id: user.id,
       business_id: selectedBusiness,
@@ -95,10 +98,32 @@ const Booking = () => {
 
     if (error) {
       toast.error("Failed to create booking");
-    } else {
-      toast.success("Booking request sent successfully!");
-      navigate("/dashboard");
+      setLoading(false);
+      return;
     }
+
+    // Send notification message to the business
+    const formattedDate = selectedDate.toLocaleDateString('en-ZA', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const bookingMessage = `📅 New Booking Request!\n\nCustomer: ${profile?.full_name || 'N/A'}\nEmail: ${profile?.email || 'N/A'}\nPhone: ${profile?.phone || 'N/A'}\n\nDate: ${formattedDate}\nTime: ${selectedTime}\nMall: ${mall?.name || 'N/A'}\n\nPlease confirm or decline this booking from your dashboard.`;
+
+    const { error: messageError } = await supabase.from("messages").insert({
+      sender_id: user.id,
+      receiver_id: selectedBusinessData?.owner_id,
+      message: bookingMessage,
+    });
+
+    if (messageError) {
+      console.error("Failed to send notification message:", messageError);
+    }
+
+    toast.success("Booking request sent successfully!");
+    navigate("/dashboard");
 
     setLoading(false);
   };
@@ -125,18 +150,24 @@ const Booking = () => {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label>Select Nail Tech Business</Label>
-                <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a business" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businesses.map((business) => (
-                      <SelectItem key={business.id} value={business.id}>
-                        {business.business_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {businesses.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">
+                    No nail tech businesses available yet. Please check back later.
+                  </p>
+                ) : (
+                  <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a business" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businesses.map((business) => (
+                        <SelectItem key={business.id} value={business.id}>
+                          {business.business_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="space-y-2">

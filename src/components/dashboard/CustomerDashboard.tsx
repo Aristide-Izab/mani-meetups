@@ -259,7 +259,11 @@ const CustomerDashboard = () => {
                     {business.description || "Professional nail services"}
                   </p>
                   <div className="flex gap-2">
-                    <Button className="flex-1" size="sm">
+                    <Button 
+                      className="flex-1" 
+                      size="sm"
+                      onClick={() => navigate("/malls")}
+                    >
                       Book Now
                     </Button>
                     <Button
