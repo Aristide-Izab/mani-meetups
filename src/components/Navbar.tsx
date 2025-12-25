@@ -68,14 +68,24 @@ const Navbar = () => {
               Contact
             </Link>
             {session && (
-              <Link
-                to="/dashboard"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive("/dashboard") ? "text-primary" : "text-foreground"
-                }`}
-              >
-                Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    isActive("/dashboard") ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/profile"
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    isActive("/profile") ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  Profile
+                </Link>
+              </>
             )}
           </div>
 
