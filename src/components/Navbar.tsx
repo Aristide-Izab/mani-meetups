@@ -43,14 +43,16 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link
-              to="/"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/") ? "text-primary" : "text-foreground"
-              }`}
-            >
-              Home
-            </Link>
+            {!session && (
+              <Link
+                to="/"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/") ? "text-primary" : "text-foreground"
+                }`}
+              >
+                Home
+              </Link>
+            )}
             <Link
               to="/about"
               className={`text-sm font-medium transition-colors hover:text-primary ${
