@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MessageSquare, Store, User } from "lucide-react";
+import { Calendar, MessageSquare, Store, User, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import MessageDialog from "@/components/messaging/MessageDialog";
 
@@ -24,10 +25,12 @@ interface CustomerContact {
   id: string;
   full_name: string;
   email: string;
+  phone: string | null;
   unread_count: number;
 }
 
 const BusinessDashboard = () => {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [business, setBusiness] = useState<any>(null);
   const [currentUserId, setCurrentUserId] = useState<string>("");
@@ -99,10 +102,10 @@ const BusinessDashboard = () => {
       customerIds.add(otherId);
     });
 
-    // Get customer profiles
+    // Get customer profiles with phone
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, full_name, email")
+      .select("id, full_name, email, phone")
       .in("id", Array.from(customerIds))
       .eq("user_type", "customer");
 
@@ -115,6 +118,7 @@ const BusinessDashboard = () => {
           id: profile.id,
           full_name: profile.full_name,
           email: profile.email,
+          phone: profile.phone,
           unread_count: unreadCount,
         };
       });
@@ -155,7 +159,10 @@ const BusinessDashboard = () => {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="shadow-elegant">
+        <Card 
+          className="shadow-elegant cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate("/my-business")}
+        >
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center">
               <div className="h-12 w-12 rounded-full bg-gradient-hero flex items-center justify-center mb-4">
@@ -266,9 +273,17 @@ const BusinessDashboard = () => {
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-start">
                       <div className="space-y-2">
-                        <h3 className="font-semibold">{booking.customer_name}</h3>
-                        <p className="text-sm text-muted-foreground">{booking.customer_email}</p>
-                        <p className="text-sm text-muted-foreground">{booking.customer_phone}</p>
+                        <h3 className="font-semibold text-lg">{booking.customer_name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Mail className="h-4 w-4" />
+                          <span>{booking.customer_email}</span>
+                        </div>
+                        {booking.customer_phone && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span>{booking.customer_phone}</span>
+                          </div>
+                        )}
                         <p className="text-sm">
                           <span className="font-medium">Location:</span> {booking.malls.name},{" "}
                           {booking.malls.location}

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
+import { Send, Phone, Mail, User, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Message {
   id: string;
@@ -14,6 +14,12 @@ interface Message {
   receiver_id: string;
   created_at: string;
   read: boolean;
+}
+
+interface RecipientInfo {
+  full_name: string;
+  email: string;
+  phone: string | null;
 }
 
 interface MessageDialogProps {
@@ -34,11 +40,14 @@ const MessageDialog = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recipientInfo, setRecipientInfo] = useState<RecipientInfo | null>(null);
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open && recipientId) {
       fetchMessages();
+      fetchRecipientInfo();
       markMessagesAsRead();
     }
   }, [open, recipientId]);
@@ -48,6 +57,18 @@ const MessageDialog = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const fetchRecipientInfo = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, email, phone")
+      .eq("id", recipientId)
+      .single();
+
+    if (data) {
+      setRecipientInfo(data);
+    }
+  };
 
   const fetchMessages = async () => {
     const { data, error } = await supabase
@@ -95,8 +116,48 @@ const MessageDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Chat with {recipientName}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            {recipientName}
+          </DialogTitle>
         </DialogHeader>
+
+        {/* Contact Info Toggle */}
+        <div className="border-b border-border pb-3">
+          <button
+            onClick={() => setShowContactInfo(!showContactInfo)}
+            className="flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <span>Contact Information</span>
+            {showContactInfo ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+          {showContactInfo && recipientInfo && (
+            <div className="mt-3 space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <User className="h-4 w-4" />
+                <span>{recipientInfo.full_name}</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Mail className="h-4 w-4" />
+                <a href={`mailto:${recipientInfo.email}`} className="hover:text-primary">
+                  {recipientInfo.email}
+                </a>
+              </div>
+              {recipientInfo.phone && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <a href={`tel:${recipientInfo.phone}`} className="hover:text-primary">
+                    {recipientInfo.phone}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         
         <ScrollArea className="h-[300px] pr-4" ref={scrollRef}>
           <div className="space-y-3">

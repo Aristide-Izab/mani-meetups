@@ -249,7 +249,11 @@ const CustomerDashboard = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredBusinesses.map((business) => (
-              <Card key={business.id} className="hover:shadow-md transition-shadow">
+              <Card 
+                key={business.id} 
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate(`/business/${business.id}`)}
+              >
                 <CardContent className="pt-6">
                   <h3 className="font-semibold mb-2">{business.business_name}</h3>
                   <p className="text-sm text-muted-foreground mb-2">
@@ -262,14 +266,20 @@ const CustomerDashboard = () => {
                     <Button 
                       className="flex-1" 
                       size="sm"
-                      onClick={() => navigate("/malls")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/business/${business.id}`);
+                      }}
                     >
-                      Book Now
+                      View Profile
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleMessageBusiness(business)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMessageBusiness(business);
+                      }}
                     >
                       <MessageSquare className="h-4 w-4" />
                     </Button>
